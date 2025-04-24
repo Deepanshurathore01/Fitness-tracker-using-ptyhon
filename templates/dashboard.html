@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Smart Fitness Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 via-pink-400 to-red-300 min-h-screen text-white">
+
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center p-6 bg-white text-black shadow-md">
+    <div class="text-2xl font-bold">Dashboard</div>
+    <div>
+      <a href="/logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Welcome Section -->
+  <section class="text-center mt-10">
+    <h1 class="text-4xl font-bold">Welcome, {{ username }}! 🏃‍♂️</h1>
+    <p class="text-lg mt-2 text-pink-100">Here’s your latest fitness report.</p>
+  </section>
+
+  <!-- Data Table -->
+  <section class="mt-10 mx-8 bg-white text-gray-800 p-6 rounded-xl shadow-lg">
+    <h2 class="text-2xl font-bold mb-4 text-pink-600">Your Fitness Data</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-center">
+        <thead>
+          <tr class="bg-pink-500 text-white">
+            <th class="py-2 px-4">Date</th>
+            <th class="py-2 px-4">Steps</th>
+            <th class="py-2 px-4">Distance (km)</th>
+            <th class="py-2 px-4">Calories</th>
+            <th class="py-2 px-4">Heart Rate (bpm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in fitness_data %}
+          <tr class="hover:bg-pink-100 transition">
+            <td class="py-2 px-4">{{ entry['date'] }}</td>
+            <td class="py-2 px-4">{{ entry['steps'] }}</td>
+            <td class="py-2 px-4">{{ entry['distance'] }}</td>
+            <td class="py-2 px-4">{{ entry['calories'] }}</td>
+            <td class="py-2 px-4">{{ entry['heart_rate'] }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="py-4 text-gray-500">No data available. Start tracking!</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+ 
+  
+  
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Fetch data from Flask backend
+    fetch('/data')
+      .then(response => response.json())
+      .then(data => {
+        const labels = data.map(entry => entry.date);
+        const steps = data.map(entry => entry.steps);
+  
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Steps',
+              data: steps,
+              borderColor: '#F59E0B',
+              backgroundColor: 'rgba(245, 158, 11, 0.5)',
+              tension: 0.4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                labels: {
+                  color: 'black'
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: 'black' },
+                grid: { color: 'rgba(0,0,0,0.1)' }
+              },
+              y: {
+                ticks: { color: 'black' },
+                grid: { color: 'rgba(0,0,0,0.1)' }
+              }
+            }
+          }
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  </script>
+  
+</body>
+</html>
